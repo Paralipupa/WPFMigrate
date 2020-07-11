@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Data.OleDb;
 using System.Data;
-using MySql.Data;
 using MySql.Data.MySqlClient;
 
-namespace WpfApp3.Model
+namespace MigrateBase.Model
 {
     class SQLInsert
     {
@@ -63,9 +58,9 @@ namespace WpfApp3.Model
 
                     progressindicate.MoveNextCurrent();
 
-                    var cells = _row.ItemArray;
+                    var _cells = _row.ItemArray;
                     _str = "";
-                    foreach (object _cell in cells)
+                    foreach (object _cell in _cells)
                     {
                         switch (_cell.GetType().ToString())
                         {

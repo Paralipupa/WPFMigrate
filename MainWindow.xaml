@@ -3,11 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp3"
-        xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid" x:Name="MainForm" x:Class="WpfApp3.MainWindow"
+        xmlns:local="clr-namespace:MigrateBase"
+        xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid" x:Name="MainForm" x:Class="MigrateBase.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="876.5" Closing="MainForm_Closing" SizeChanged="MainForm_SizeChanged">
-    
+        Title="Копирование данных из Access в MyQL" Height="450" Width="876.5" Closing="MainForm_Closing" SizeChanged="MainForm_SizeChanged">
+
     <DockPanel LastChildFill="True">
 
         <!-- Меню -->
@@ -29,16 +29,16 @@
                 </Grid>
 
             </DockPanel>
-            
+
             <!-- Меню -->
-                <DockPanel DockPanel.Dock="Left"  Margin="15,10,5,5" VerticalAlignment="Top" > 
+            <DockPanel DockPanel.Dock="Left"  Margin="15,10,5,5" VerticalAlignment="Top" >
                 <Grid >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="btnLoad" Content="Загрузить текущую" Grid.Column="0" Height="40" Width="141" Margin="5,0,5,0" Click="BtnLoad_Click" />
-                    <Button x:Name="btnLoadAll" Grid.Column="1" Width="170" Click="BtnLoad_Click_All" Content="Загрузить все" Height="40" Margin="5,0,5,0"   />
+                    <Button x:Name="btnLoad" Content="Загрузить текущую" Grid.Column="0" Height="40" Margin="5,0,42,0" Click="BtnLoad_Click" />
+                    <Button x:Name="btnLoadAll" Grid.Column="1" Click="BtnLoad_Click_All" Content="Загрузить все" Height="40" Margin="5,0,21,0"   />
                 </Grid>
             </DockPanel>
 
@@ -52,9 +52,10 @@
         <DockPanel DockPanel.Dock="Left" LastChildFill="True">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition x:Name="ColumnLeft" Width="1*"/>
+                    <ColumnDefinition x:Name="ColumnLeft" Width="287*"/>
                     <ColumnDefinition x:Name="ColumnRazd" Width="Auto" />
-                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="170*"/>
+                    <ColumnDefinition Width="405*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -62,9 +63,9 @@
                 </Grid.RowDefinitions>
                 <GridSplitter Grid.Column="1" Grid.RowSpan="2" ShowsPreview="False" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="1,0,1,0" />
                 <ListBox x:Name="listTables" Grid.Column="0" Background="AliceBlue" Grid.Row="0"  />
-                <ListBox x:Name="listRows" Grid.Column="2" Background="AliceBlue" Grid.Row="0"  />
+                <ListBox x:Name="listRows" Grid.Column="2" Background="AliceBlue" Grid.Row="0" Grid.ColumnSpan="2"  />
                 <Label x:Name="lblMessage" Grid.Row="1" Grid.Column="0" Height="40"  Margin="5,0,5,0" />
-                <ProgressBar x:Name="progressBar1" Grid.Row="1" Grid.Column="2" />
+                <ProgressBar x:Name="progressBar1" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" />
             </Grid>
         </DockPanel>
     </DockPanel>

@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.OleDb;
-using MySql.Data;
 using MySql.Data.MySqlClient;
 
-namespace WpfApp3.Model
+namespace MigrateBase.Model
 {
     class OpenDatabases
     {
