@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using dlgForm = System.Windows.Forms ;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -12,10 +13,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Data.OleDb;
-using System.Data;
 using System.Threading;
 using DevExpress.Internal;
 using DevExpress.Data.Helpers;
@@ -27,297 +28,214 @@ namespace WpfApp3
     public partial class MainWindow : Window
     {
 
-
-        private OleDbConnection connAccess;
-        private MySqlConnection connMySQL;
-        private SQLTemplates sql;
-        private MySqlCommand command;
-
-        private string currentName;
-        private List<string> listMessage;
-        CancellationTokenSource cts = new CancellationTokenSource();
+        private readonly OpenDatabases dataBase;
+        private CancellationTokenSource cts = new CancellationTokenSource();
 
         public MainWindow()
         {
             InitializeComponent();
-            OpenMySQL();
-            OpenMSAccess();
-            listTables.ItemsSource = GetAllTablesFromDataBase();
-            listMessage = new List<string>();
-        }
+            dataBase = new OpenDatabases();
 
-
-        private void OpenMySQL()
-        {
-            string host = "192.168.0.61"; // Имя хоста
-            string database = "clientbase"; // Имя базы данных
-            string user = "user"; // Имя пользователя
-            string password = "taab501deest"; // Пароль пользователя
-            string connStr = "Database=" + database + ";Datasource=" + host + ";User=" + user + ";Password=" + password;
-
-            // создаём объект для подключения к БД
-            connMySQL = new MySqlConnection(connStr);
-            // устанавливаем соединение с БД
-            connMySQL.Open();
-            command = new MySqlCommand
+            if (dataBase.IsOpenAccess) listTables.ItemsSource =  dataBase.GetAllTablesFromAccess();
+            if (!dataBase.IsOpenMySQL)
             {
-                Connection = connMySQL
-            };
-            sql = new SQLTemplates();
+                string message = $"Не удалось открыть БД MySQL {dataBase.DatabaseName()}. Создать БД?";
+                string caption = "Ошибка при открытии БД";
+                dlgForm.MessageBoxButtons buttons = dlgForm.MessageBoxButtons.YesNo;
+                dlgForm.DialogResult result = dlgForm.MessageBox.Show(message, caption, buttons);
+                if (result == dlgForm.DialogResult.Yes)
+                {
+                    dataBase.CreateDatabase();
+                }
+            }
+
+            btnCreate.IsEnabled = (dataBase.IsOpenMySQL);
+            btnLoad.IsEnabled = dataBase.IsOpenMySQL && dataBase.IsOpenAccess;
+            btnLoadAll.IsEnabled = btnLoad.IsEnabled;
+            btnRelation.IsEnabled= (dataBase.IsOpenMySQL);
+
+            if (!String.IsNullOrWhiteSpace(dataBase.Message))
+            {
+
+                listRows.Items.Add(dataBase.Message);
+            
+            }
         }
 
-        private void OpenMSAccess()
+        private void MainForm_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            string connString = "Provider=Microsoft.ACE.Oledb.12.0;Data Source=D:\\Infoteh\\BASE\\NewBase.mdb;";
-            connAccess = new OleDbConnection(connString);
-            connAccess.Open();
+            if (dataBase.IsOpenAccess) dataBase.ConnAccess.Close();
+            if (dataBase.IsOpenMySQL) dataBase.ConnMySQL.Close();
         }
-
-        private List<string> GetAllTablesFromDataBase()
-        {
-            var queries = new List<string>();
-            var dt = connAccess.GetSchema("Tables");
-
-            queries = dt.AsEnumerable().Select(dr => dr.Field<string>("TABLE_NAME")).Where(l=>!l.Contains("MSys") && !l.Contains("_") && !l.Contains("Запрос")).ToList();
-
-            return queries;
-        }
-
 
         private void ButExit_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit( 0 );
         }
 
-        private void MainForm_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void BtnAbort_Click(object sender, RoutedEventArgs e)
         {
-            connAccess.Close();
-            connMySQL.Close();
+            cts?.Cancel();
         }
 
-        private async void InsertToMySQL(string nameTable, IProgress<ProgressIndicate> progress, CancellationToken token)
+        private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
-            OleDbDataAdapter da;
-            OleDbCommand cmd;
-            DataSet ds;
+            CreateTablesAsync();
+        }
 
-            string connStr = $"SELECT * FROM [{nameTable}]";
-            string mSQLHead = "";
-            string mSQLValue = "";
+        private void BtnRelation_Click_1(object sender, RoutedEventArgs e)
+        {
+            RelationSetAsync();
+        }
 
-            da = new OleDbDataAdapter(connStr, connAccess);
-            ds = new DataSet();
-            da.Fill(ds, nameTable);
+        private void BtnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            InsertDataCurrentAsync();
+        }
 
-            int j = 0;
-            int k = 0;
+        private void BtnLoad_Click_All(object sender, RoutedEventArgs e)
+        {
+            InsertDataAsync();
+        }
 
-            foreach (DataTable dt in ds.Tables)
+        private void ReportProgress(ProgressIndicate progressindicate = null)
+        {
+            if (progressindicate != null)
             {
+                if (progressindicate.GetTotal() != 0) progressBar1.Value = progressindicate.GetCurrent() * 100 / progressindicate.GetTotal();
 
+                lblMessage.Content = (progressindicate?.GetTitle() ?? "") + " " + (progressindicate?.GetName() ?? "") + " " + (progressindicate.GetCurrent() != 0 ? progressindicate.GetCurrent().ToString() : "");
 
-                mSQLHead = $"INSERT INTO `{dt.TableName.ToString().Trim()}` ";
-
-
-                string str = "";
-                foreach (DataColumn column in dt.Columns)
-                    str +=  $"`{column.ColumnName.Trim()}`,";
-
-                mSQLHead += $"({str.Trim().TrimEnd(',')})";
-                mSQLHead += " VALUES ";
-
-                mSQLValue = "";
-
-                // перебор всех строк таблицы
-                ProgressIndicate p = new ProgressIndicate();
-                foreach (DataRow row in dt.Rows)
-                {
-                    // получаем все ячейки строки
-                    if (token.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    if (progress != null)
-                    {
-                        p.current = k;
-                        p.count = dt.Rows.Count;
-                        progress.Report(p);
-                    }
-                    int i = 0;
-                    var cells = row.ItemArray;
-                    str = "";
-                    foreach (object cell in cells)
-                    {
-                        
-                            switch (cell.GetType().ToString())
-                            {
-                                case "System.String":
-                                    str += "'" + cell.ToString().Trim() + "', ";
-                                    break;
-                                case "System.DBNull":
-                                    str += "Null, ";
-                                    break;
-                                case "System.DateTime":
-                                    DateTime d;
-                                    if (DateTime.TryParse(cell.ToString(), out d))
-                                    {
-                                        str += "'" + d.ToString("o") + "', ";
-                                    }
-                                    else str += "Null, ";
-                                    break;
-                                default:
-                                    str += cell.ToString().Trim() + ", ";
-                                    break;
-                            }
-                        
-                        i++;
-                    }
-
-                    mSQLValue += $"({ str.Trim().TrimEnd(',') }), ";
-                    str = "";
-                    j++;
-                    k++;
-                    if (j > 4000)
-                    {
-                        ExecuteQuery(mSQLHead + mSQLValue.Trim().TrimEnd(','), j);
-
-                        j = 0;
-                        mSQLValue = "";
-                    }
-
+                if (progressindicate.Message != null)
+                {                        
+                    listRows.Items.Add(progressindicate.Message);
+                    progressindicate.ClearMessage();
                 }
+                        
 
-            }
-
-            if (mSQLValue.Length != 0)
-            {
-                ExecuteQuery(mSQLHead + mSQLValue.Trim().TrimEnd(','), j);
-            }
-
-        }
-
-        private void ExecuteQuery(string query, int j)
-        {
-            try
-            {
-                command.CommandText = query; int n = command.ExecuteNonQuery();
-                if (n != j) listMessage.Add($" Предупреждение: '{query.Substring(11, 20)}' запрошено {j},  записано {n} ");
-            }
-            catch (Exception ex)
-            {
-                listMessage.Add($" Ошибка {j}зап.: {ex.Message}. '{query.Substring(11, 20)}'");
-            }
-
-        }
-
-        private void ReportProgress(ProgressIndicate value = null)
-        {
-            if (value != null)
-            {
-                if (value.count != 0)
-                {
-                    progressBar1.Value = value.current * 100 / value.count;
-                    lblMessage.Content = currentName?.ToString() +" "+ value.current.ToString();
-
-                }
             }
             else 
             { 
                 progressBar1.Value = 0;
                 lblMessage.Content = "";
             }
-            if (listMessage.Count !=0 )
-            {
-                for (int i = 0; i < listMessage.Count; i++)
-                {
-                    listRows.Items.Add(listMessage[i].ToString());
-                }
-                listMessage.Clear();
-
-            }
         }
 
-        private void btnRelation_Click(object sender, RoutedEventArgs e)
-        {
-            RelationSetAsync();
-        }
 
         async void CreateTablesAsync()
         {
 
             btnCreate.IsEnabled = false;
-            currentName = "Create";
+            btnAbort.IsEnabled = true;
+
 
             cts = new CancellationTokenSource();
             CancellationToken token = cts.Token;
 
             var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
-            SQLCreate dd = new SQLCreate();
-            await Task.Run(() => dd.CreateTables(command, sql, progressIndicator, token));
-            btnCreate.IsEnabled = true;
+            SQLCreate sqlCreate = new SQLCreate(dataBase.ConnMySQL);
+
+            await Task.Run(() => sqlCreate.CreateTables(progressIndicator, token));
+
             MessageBox.Show("Создание таблиц завершено");
             ReportProgress();
+
+            btnAbort.IsEnabled = false;
+            btnCreate.IsEnabled = true;
 
         }
 
         private async void InsertDataAsync()
         {
 
-                cts = new CancellationTokenSource();
-                CancellationToken token = cts.Token;
-                btnLoad.IsEnabled = false;
+            btnLoad.IsEnabled = false;
+            btnAbort.IsEnabled = true;
+            listRows.Items.Clear();
 
-                foreach (var o in listTables.Items)
-                {
-                    string nameTable = o.ToString();
-                    currentName = nameTable;
-                    var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
-                    await Task.Run(() => InsertToMySQL(nameTable, progressIndicator, token));
-                    if (token.IsCancellationRequested) break;
-                }
+            cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
 
-                btnLoad.IsEnabled = true;
-                MessageBox.Show($"Загрузка завершена");
-                ReportProgress();
+            SQLInsert sqlInsert = new SQLInsert(dataBase.ConnMySQL);
+
+            foreach (var o in listTables.Items)
+            {
+                string nameTable = o.ToString();
+                var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
+                
+                await Task.Run(() => sqlInsert.InsertToMySQL( dataBase.ConnAccess, nameTable, progressIndicator, token));
+
+                if (token.IsCancellationRequested) break;
+
+            }
+
+            MessageBox.Show($"Загрузка завершена");
+            ReportProgress();
+
+            btnAbort.IsEnabled = false;
+            btnCreate.IsEnabled = true;
 
         }
+
+        private async void InsertDataCurrentAsync()
+        {
+            if (listTables.SelectedItems.Count == 0)
+            {
+                return;
+            }
+            btnLoad.IsEnabled = false;
+            btnAbort.IsEnabled = true;
+            listRows.Items.Clear();
+
+            cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+
+            SQLInsert sqlInsert = new SQLInsert(dataBase.ConnMySQL);
+            foreach (var o in listTables.SelectedItems)
+            {
+                string nameTable = o.ToString();
+                var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
+
+                await Task.Run(() => sqlInsert.InsertToMySQL(dataBase.ConnAccess, nameTable, progressIndicator, token));
+
+                if (token.IsCancellationRequested) break;
+
+            }
+            MessageBox.Show($"Загрузка завершена");
+            ReportProgress();
+
+            btnLoad.IsEnabled = true;
+            btnAbort.IsEnabled = false;
+
+        }
+
 
         private async void RelationSetAsync()
         {
+
+            btnRelation.IsEnabled = false;
+            btnAbort.IsEnabled = true;
+            listRows.Items.Clear();
+
             cts = new CancellationTokenSource();
             CancellationToken token = cts.Token;
-            btnRelation.IsEnabled = false;
-            currentName = "Relation";
             var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
-            SQLCreate dd = new SQLCreate();
-            await Task.Run(() =>
-            {
-                dd.RelationTables(command, sql, progressIndicator, token);
-            });
-            btnRelation.IsEnabled = true;
+            SQLCreate dd = new SQLCreate(dataBase.ConnMySQL);
+
+            await Task.Run(() => dd.RelationTables(progressIndicator, token));
+
             MessageBox.Show("Установка отношений завершена");
             ReportProgress();
+
+            btnRelation.IsEnabled = true;
+            btnAbort.IsEnabled = false;
+
         }
 
-        private void btnCreate_Click(object sender, RoutedEventArgs e)
+        private void MainForm_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            CreateTablesAsync();
+            //lblMessage.Width = DocPanelLeft.ActualWidth;
+            //lblMessage.Content = $"left={ColumnLeft.ActualWidth.ToString()}  razd={ColumnRazd.Offset.ToString()}";
         }
 
-        private void btnRelation_Click_1(object sender, RoutedEventArgs e)
-        {
-            RelationSetAsync();
-        }
-
-        private void btnLoad_Click(object sender, RoutedEventArgs e)
-        {
-            InsertDataAsync();
-        }
-
-        private void btnAbort_Click(object sender, RoutedEventArgs e)
-        {
-            cts?.Cancel();
-        }
     }
 }

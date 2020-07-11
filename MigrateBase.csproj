@@ -69,6 +69,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\OpenDatabases.cs" />
     <Compile Include="Model\ProgressIndicate.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\SQLCreate.cs" />
+    <Compile Include="Model\SQLInsert.cs" />
     <Compile Include="Model\SQLTemplate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
