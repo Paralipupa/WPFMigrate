@@ -6,12 +6,13 @@
         xmlns:local="clr-namespace:MigrateBase"
         xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid" x:Name="MainForm" x:Class="MigrateBase.MainWindow"
         mc:Ignorable="d"
-        Title="Копирование данных из Access в MyQL" Height="450" Width="876.5" Closing="MainForm_Closing" SizeChanged="MainForm_SizeChanged">
-
+        Title="Копирование данных из Access в MyQL" Height="450" Width="876.5" Closing="MainForm_Closing" SizeChanged="MainForm_SizeChanged"
+        Background="{DynamicResource WindowBackgroundBrush}">
+   
     <DockPanel LastChildFill="True">
 
         <!-- Меню -->
-        <DockPanel DockPanel.Dock="Top" >
+        <DockPanel x:Name="pnlMenu" DockPanel.Dock="Top" >
 
             <!-- Меню -->
             <Button x:Name="btnAbort" DockPanel.Dock="Left"  Content="X"  Height="40" Margin="5,10,5,0" VerticalAlignment="Top" Width="40"  Click="BtnAbort_Click" IsEnabled="False"/>
@@ -24,8 +25,8 @@
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="btnCreate" Grid.Column="0" Content="Создание структуры" Height="40" Width="130" Click="BtnCreate_Click" Margin="5,0,5,0" />
-                    <Button x:Name="btnRelation"  Grid.Column="1" Content="Построение отношений" Height="40" Width="170" Click="BtnRelation_Click_1" Margin="5,0,5,0"  />
+                    <Button x:Name="btnCreate" Grid.Column="0" Content="Создание структуры" Height="40" Click="BtnCreate_Click" Margin="5,0,5,0" />
+                    <Button x:Name="btnRelation"  Grid.Column="1" Content="Построение отношений" Height="40" Click="BtnRelation_Click_1" Margin="5,0,5,0"  />
                 </Grid>
 
             </DockPanel>
@@ -42,14 +43,14 @@
                 </Grid>
             </DockPanel>
 
-            <!-- Меню -->
+            <!-- Меню -->            
             <DockPanel x:Name="Rezerv">
             </DockPanel>
 
         </DockPanel>
-
+       
         <!-- середина -->
-        <DockPanel DockPanel.Dock="Left" LastChildFill="True">
+        <DockPanel Name="pnlMain" DockPanel.Dock="Left" LastChildFill="True">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="ColumnLeft" Width="287*"/>
@@ -62,8 +63,8 @@
                     <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
                 <GridSplitter Grid.Column="1" Grid.RowSpan="2" ShowsPreview="False" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="1,0,1,0" />
-                <ListBox x:Name="listTables" Grid.Column="0" Background="AliceBlue" Grid.Row="0"  />
-                <ListBox x:Name="listRows" Grid.Column="2" Background="AliceBlue" Grid.Row="0" Grid.ColumnSpan="2"  />
+                <ListBox x:Name="listTables" Grid.Column="0"  Grid.Row="0"  />
+                <ListBox x:Name="listRows" Grid.Column="2"  Grid.Row="0" Grid.ColumnSpan="2"  />
                 <Label x:Name="lblMessage" Grid.Row="1" Grid.Column="0" Height="40"  Margin="5,0,5,0" />
                 <ProgressBar x:Name="progressBar1" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" />
             </Grid>

@@ -65,7 +65,7 @@ namespace MigrateBase.Model
                         switch (_cell.GetType().ToString())
                         {
                             case "System.String":
-                                _str += "'" + _cell.ToString().Trim() + "', ";
+                                _str += "'" + _cell.ToString().Trim().Replace("'","`") + "', ";
                                 break;
                             case "System.DBNull":
                                 _str += "Null, ";
@@ -102,7 +102,7 @@ namespace MigrateBase.Model
                 
 
             }
-
+            
         }
 
         public void ExecuteQuery(string query, IProgress<ProgressIndicate> progress, ProgressIndicate progressindicate )
@@ -115,7 +115,7 @@ namespace MigrateBase.Model
             }
             catch (Exception ex)
             {
-                progressindicate.AddMessage($" Ошибка {progressindicate.GetInterval()}зап.: {ex.Message}. '{query.Substring(11, 20)}'");
+                 progressindicate.AddMessage($" Ошибка {progressindicate.GetInterval()}зап.: {ex.Message}. '{query.Substring(11, 20)}'");
             }
             finally 
             {

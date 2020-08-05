@@ -1,7 +1,14 @@
-﻿namespace MigrateBase.Model
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MigrateBase.Model
 {
     class SQLTemplates
     {
+
 
         public string Create_Акт()
         {
@@ -73,9 +80,9 @@
             sql += ",`_КодСТМДоговор` INT  NULL DEFAULT NULL";
             sql += ",`Сумма` FLOAT NULL DEFAULT NULL";
             sql += ",`Дата` DATETIME NULL DEFAULT NULL";
-            sql += ",`КодРеестрПРО` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2РеестрПРО` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМРеестрПРО` INT  NULL DEFAULT NULL";
+            sql += ",`КодПриходник` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Приходник` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМПриходник` INT  NULL DEFAULT NULL";
             sql += ",`Активный` BIT NULL DEFAULT NULL";
             sql += ",`КодПримечания` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2Примечания` INT  NULL DEFAULT NULL";
@@ -203,9 +210,9 @@
             return sql;
         }
 
-        public string Create_Договор_Прайслист()
+        public string Create_ДоговорПрайслист()
         {
-            string nameTable = "Договор-Прайслист";
+            string nameTable = "ДоговорПрайслист";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -222,9 +229,9 @@
             return sql;
         }
 
-        public string Create_Договор_Скидка()
+        public string Create_ДоговорСкидка()
         {
-            string nameTable = "Договор-Скидка";
+            string nameTable = "ДоговорСкидка";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -409,9 +416,9 @@
             return sql;
         }
 
-        public string Create_Пакет_Номенклатура()
+        public string Create_ПакетНоменклатура()
         {
-            string nameTable = "Пакет-Номенклатура";
+            string nameTable = "ПакетНоменклатура";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -423,23 +430,6 @@
             sql += ",`_КодЭД2Номенклатура` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМНоменклатура` INT  NULL DEFAULT NULL";
             sql += ",`Количество` INT NULL DEFAULT NULL";
-            sql += ")";
-            return sql;
-        }
-
-        public string Create_Плательщик_Клиент()
-        {
-            string nameTable = "Плательщик-Клиент";
-            string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
-            sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
-            sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
-            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
-            sql += ",`КодПлательщик` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2Плательщик` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМПлательщик` INT  NULL DEFAULT NULL";
-            sql += ",`КодКлиент` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2Клиент` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМКлиент` INT  NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -641,9 +631,9 @@
             sql += ",`КодПродажа` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2Продажа` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМПродажа` INT  NULL DEFAULT NULL";
-            sql += ",`КодПрайслистНоменклатура` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2ПрайслистНоменклатура` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМПрайслистНоменклатура` INT  NULL DEFAULT NULL";
+            sql += ",`КодПродукт` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Продукт` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМПродукт` INT  NULL DEFAULT NULL";
             sql += ",`КодПериод` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2Период` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМПериод` INT  NULL DEFAULT NULL";
@@ -659,9 +649,9 @@
             return sql;
         }
 
-        public string Create_Позиция_Скидка()
+        public string Create_ПозицияСкидка()
         {
-            string nameTable = "Позиция-Скидка";
+            string nameTable = "ПозицияСкидка";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -729,9 +719,26 @@
             return sql;
         }
 
-        public string Create_ГруппаНоменклатура()
+        public string Create_Плательщик_Клиент()
         {
-            string nameTable = "ГруппаНоменклатура";
+            string nameTable = "Плательщик-Клиент";
+            string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
+            sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
+            sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
+            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`КодПлательщик` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Плательщик` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМПлательщик` INT  NULL DEFAULT NULL";
+            sql += ",`КодКлиент` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Клиент` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМКлиент` INT  NULL DEFAULT NULL";
+            sql += ")";
+            return sql;
+        }
+
+        public string Create_Группа()
+        {
+            string nameTable = "Группа";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -740,26 +747,27 @@
             return sql;
         }
 
-        public string Create_ГруппаПрайслистНоменклатура()
+        public string Create_ГруппаПродукт()
         {
-            string nameTable = "ГруппаПрайслистНоменклатура";
+            string nameTable = "ГруппаПродукт";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
             sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
-            sql += ",`КодГруппаНоменклатура` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2ГруппаНоменклатура` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМГруппаНоменклатура` INT  NULL DEFAULT NULL";
-            sql += ",`КодПрайслистНоменклатура` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2ПрайслистНоменклатура` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМПрайслистНоменклатура` INT  NULL DEFAULT NULL";
+            sql += ",`КодГруппа` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Группа` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМГруппа` INT  NULL DEFAULT NULL";
+            sql += ",`КодПродукт` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Продукт` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМПродукт` INT  NULL DEFAULT NULL";
+            sql += ",`Уникальный` VARCHAR(150) NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
 
-        public string Create_Прайслист_Номенклатура()
+        public string Create_Продукт()
         {
-            string nameTable = "Прайслист-Номенклатура";
+            string nameTable = "Продукт";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -770,9 +778,7 @@
             sql += ",`КодНоменклатура` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2Номенклатура` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМНоменклатура` INT  NULL DEFAULT NULL";
-            sql += ",`КодЦена` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2Цена` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМЦена` INT  NULL DEFAULT NULL";
+            sql += ",`Уникальный` VARCHAR(150) NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -848,9 +854,9 @@
             return sql;
         }
 
-        public string Create_РеестрПРО()
+        public string Create_Приходник()
         {
-            string nameTable = "Реестр ПРО";
+            string nameTable = "Приходник";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
@@ -869,16 +875,16 @@
             return sql;
         }
 
-        public string Create_РеестрПРОДоговор()
+        public string Create_ПриходникДоговор()
         {
-            string nameTable = "РеестрПРОДоговор";
+            string nameTable = "ПриходникДоговор";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
             sql += ",`_КодЭД2`INT NULL  DEFAULT NULL";
             sql += ",`_КодСТМ`INT NULL  DEFAULT NULL";
             sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
-            sql += ",`КодРеестрПРО` INT NULL DEFAULT NULL";
-            sql += ",`_КодЭД2РеестрПРО` INT  NULL DEFAULT NULL";
-            sql += ",`_КодСТМРеестрПРО` INT  NULL DEFAULT NULL";
+            sql += ",`КодПриходник` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Приходник` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМПриходник` INT  NULL DEFAULT NULL";
             sql += ",`КодДоговор` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2Договор` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМДоговор` INT  NULL DEFAULT NULL";
@@ -934,7 +940,7 @@
             sql += ",`КодТипСкидки` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2ТипСкидки` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМТипСкидки` INT  NULL DEFAULT NULL";
-            sql += ",`Количество` INT NULL DEFAULT NULL";
+            sql += ",`Размер` FLOAT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -1286,6 +1292,9 @@
             sql += ",`КодСкидка` INT NULL DEFAULT NULL";
             sql += ",`_КодЭД2Скидка` INT  NULL DEFAULT NULL";
             sql += ",`_КодСТМСкидка` INT  NULL DEFAULT NULL";
+            sql += ",`КодПродукт` INT NULL DEFAULT NULL";
+            sql += ",`_КодЭД2Продукт` INT  NULL DEFAULT NULL";
+            sql += ",`_КодСТМПродукт` INT  NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -1386,14 +1395,14 @@
             string sql = "ALTER TABLE `Баланс` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_РеестрПРО_Баланс()
+        public string RelationIndex_Приходник_Баланс()
         {
-            string sql = "ALTER TABLE `Баланс` ADD INDEX (`КодРеестрПРО`)";
+            string sql = "ALTER TABLE `Баланс` ADD INDEX (`КодПриходник`)";
             return sql;
         }
-        public string Relation_РеестрПРО_Баланс()
+        public string Relation_Приходник_Баланс()
         {
-            string sql = "ALTER TABLE `Баланс` ADD FOREIGN KEY (`КодРеестрПРО`) REFERENCES `Реестр ПРО`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `Баланс` ADD FOREIGN KEY (`КодПриходник`) REFERENCES `Приходник`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Примечания_Баланс()
@@ -1416,24 +1425,24 @@
             string sql = "ALTER TABLE `Город` ADD FOREIGN KEY (`КодРегион`) REFERENCES `Регион`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_ГруппаНоменклатура_ГруппаПрайслистНоменклатура()
+        public string RelationIndex_Группа_ГруппаПродукт()
         {
-            string sql = "ALTER TABLE `ГруппаПрайслистНоменклатура` ADD INDEX (`КодГруппаНоменклатура`)";
+            string sql = "ALTER TABLE `ГруппаПродукт` ADD INDEX (`КодГруппа`)";
             return sql;
         }
-        public string Relation_ГруппаНоменклатура_ГруппаПрайслистНоменклатура()
+        public string Relation_Группа_ГруппаПродукт()
         {
-            string sql = "ALTER TABLE `ГруппаПрайслистНоменклатура` ADD FOREIGN KEY (`КодГруппаНоменклатура`) REFERENCES `ГруппаНоменклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ГруппаПродукт` ADD FOREIGN KEY (`КодГруппа`) REFERENCES `Группа`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Прайслист_Номенклатура_ГруппаПрайслистНоменклатура()
+        public string RelationIndex_Продукт_ГруппаПродукт()
         {
-            string sql = "ALTER TABLE `ГруппаПрайслистНоменклатура` ADD INDEX (`КодПрайслистНоменклатура`)";
+            string sql = "ALTER TABLE `ГруппаПродукт` ADD INDEX (`КодПродукт`)";
             return sql;
         }
-        public string Relation_Прайслист_Номенклатура_ГруппаПрайслистНоменклатура()
+        public string Relation_Продукт_ГруппаПродукт()
         {
-            string sql = "ALTER TABLE `ГруппаПрайслистНоменклатура` ADD FOREIGN KEY (`КодПрайслистНоменклатура`) REFERENCES `Прайслист-Номенклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ГруппаПродукт` ADD FOREIGN KEY (`КодПродукт`) REFERENCES `Продукт`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Клиент_Диадок()
@@ -1526,44 +1535,44 @@
             string sql = "ALTER TABLE `Договор` ADD FOREIGN KEY (`КодПримечания`) REFERENCES `Примечания`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Договор_Договор_Прайслист()
+        public string RelationIndex_Договор_ДоговорПрайслист()
         {
-            string sql = "ALTER TABLE `Договор-Прайслист` ADD INDEX (`КодДоговор`)";
+            string sql = "ALTER TABLE `ДоговорПрайслист` ADD INDEX (`КодДоговор`)";
             return sql;
         }
-        public string Relation_Договор_Договор_Прайслист()
+        public string Relation_Договор_ДоговорПрайслист()
         {
-            string sql = "ALTER TABLE `Договор-Прайслист` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ДоговорПрайслист` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Прайслист_Договор_Прайслист()
+        public string RelationIndex_Прайслист_ДоговорПрайслист()
         {
-            string sql = "ALTER TABLE `Договор-Прайслист` ADD INDEX (`КодПрайслист`)";
+            string sql = "ALTER TABLE `ДоговорПрайслист` ADD INDEX (`КодПрайслист`)";
             return sql;
         }
-        public string Relation_Прайслист_Договор_Прайслист()
+        public string Relation_Прайслист_ДоговорПрайслист()
         {
-            string sql = "ALTER TABLE `Договор-Прайслист` ADD FOREIGN KEY (`КодПрайслист`) REFERENCES `Прайслист`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ДоговорПрайслист` ADD FOREIGN KEY (`КодПрайслист`) REFERENCES `Прайслист`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Договор_Договор_Скидка()
+        public string RelationIndex_Договор_ДоговорСкидка()
         {
-            string sql = "ALTER TABLE `Договор-Скидка` ADD INDEX (`КодДоговор`)";
+            string sql = "ALTER TABLE `ДоговорСкидка` ADD INDEX (`КодДоговор`)";
             return sql;
         }
-        public string Relation_Договор_Договор_Скидка()
+        public string Relation_Договор_ДоговорСкидка()
         {
-            string sql = "ALTER TABLE `Договор-Скидка` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ДоговорСкидка` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Скидка_Договор_Скидка()
+        public string RelationIndex_Скидка_ДоговорСкидка()
         {
-            string sql = "ALTER TABLE `Договор-Скидка` ADD INDEX (`КодСкидка`)";
+            string sql = "ALTER TABLE `ДоговорСкидка` ADD INDEX (`КодСкидка`)";
             return sql;
         }
-        public string Relation_Скидка_Договор_Скидка()
+        public string Relation_Скидка_ДоговорСкидка()
         {
-            string sql = "ALTER TABLE `Договор-Скидка` ADD FOREIGN KEY (`КодСкидка`) REFERENCES `Скидка`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ДоговорСкидка` ADD FOREIGN KEY (`КодСкидка`) REFERENCES `Скидка`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Примечания_Должность()
@@ -1796,26 +1805,6 @@
             string sql = "ALTER TABLE `Пакет` ADD FOREIGN KEY (`КодЦена`) REFERENCES `Цена`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Пакет_Пакет_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Пакет-Номенклатура` ADD INDEX (`КодПакет`)";
-            return sql;
-        }
-        public string Relation_Пакет_Пакет_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Пакет-Номенклатура` ADD FOREIGN KEY (`КодПакет`) REFERENCES `Пакет`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
-        public string RelationIndex_Номенклатура_Пакет_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Пакет-Номенклатура` ADD INDEX (`КодНоменклатура`)";
-            return sql;
-        }
-        public string Relation_Номенклатура_Пакет_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Пакет-Номенклатура` ADD FOREIGN KEY (`КодНоменклатура`) REFERENCES `Номенклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
         public string RelationIndex_Пакет_ПакетДоговор()
         {
             string sql = "ALTER TABLE `ПакетДоговор` ADD INDEX (`КодПакет`)";
@@ -1936,6 +1925,26 @@
             string sql = "ALTER TABLE `ПакетДоговорСкидка` ADD FOREIGN KEY (`КодСкидка`) REFERENCES `Скидка`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
+        public string RelationIndex_Пакет_ПакетНоменклатура()
+        {
+            string sql = "ALTER TABLE `ПакетНоменклатура` ADD INDEX (`КодПакет`)";
+            return sql;
+        }
+        public string Relation_Пакет_ПакетНоменклатура()
+        {
+            string sql = "ALTER TABLE `ПакетНоменклатура` ADD FOREIGN KEY (`КодПакет`) REFERENCES `Пакет`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Номенклатура_ПакетНоменклатура()
+        {
+            string sql = "ALTER TABLE `ПакетНоменклатура` ADD INDEX (`КодНоменклатура`)";
+            return sql;
+        }
+        public string Relation_Номенклатура_ПакетНоменклатура()
+        {
+            string sql = "ALTER TABLE `ПакетНоменклатура` ADD FOREIGN KEY (`КодНоменклатура`) REFERENCES `Номенклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
         public string RelationIndex_Поставщик_Персонал()
         {
             string sql = "ALTER TABLE `Персонал` ADD INDEX (`КодПоставщик`)";
@@ -2006,14 +2015,14 @@
             string sql = "ALTER TABLE `Позиция` ADD FOREIGN KEY (`КодПродажа`) REFERENCES `Продажа`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Прайслист_Номенклатура_Позиция()
+        public string RelationIndex_Продукт_Позиция()
         {
-            string sql = "ALTER TABLE `Позиция` ADD INDEX (`КодПрайслистНоменклатура`)";
+            string sql = "ALTER TABLE `Позиция` ADD INDEX (`КодПродукт`)";
             return sql;
         }
-        public string Relation_Прайслист_Номенклатура_Позиция()
+        public string Relation_Продукт_Позиция()
         {
-            string sql = "ALTER TABLE `Позиция` ADD FOREIGN KEY (`КодПрайслистНоменклатура`) REFERENCES `Прайслист-Номенклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `Позиция` ADD FOREIGN KEY (`КодПродукт`) REFERENCES `Продукт`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Период_Позиция()
@@ -2026,24 +2035,24 @@
             string sql = "ALTER TABLE `Позиция` ADD FOREIGN KEY (`КодПериод`) REFERENCES `Период`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Позиция_Позиция_Скидка()
+        public string RelationIndex_Позиция_ПозицияСкидка()
         {
-            string sql = "ALTER TABLE `Позиция-Скидка` ADD INDEX (`КодПозиция`)";
+            string sql = "ALTER TABLE `ПозицияСкидка` ADD INDEX (`КодПозиция`)";
             return sql;
         }
-        public string Relation_Позиция_Позиция_Скидка()
+        public string Relation_Позиция_ПозицияСкидка()
         {
-            string sql = "ALTER TABLE `Позиция-Скидка` ADD FOREIGN KEY (`КодПозиция`) REFERENCES `Позиция`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ПозицияСкидка` ADD FOREIGN KEY (`КодПозиция`) REFERENCES `Позиция`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Скидка_Позиция_Скидка()
+        public string RelationIndex_Скидка_ПозицияСкидка()
         {
-            string sql = "ALTER TABLE `Позиция-Скидка` ADD INDEX (`КодСкидка`)";
+            string sql = "ALTER TABLE `ПозицияСкидка` ADD INDEX (`КодСкидка`)";
             return sql;
         }
-        public string Relation_Скидка_Позиция_Скидка()
+        public string Relation_Скидка_ПозицияСкидка()
         {
-            string sql = "ALTER TABLE `Позиция-Скидка` ADD FOREIGN KEY (`КодСкидка`) REFERENCES `Скидка`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `ПозицияСкидка` ADD FOREIGN KEY (`КодСкидка`) REFERENCES `Скидка`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Роль_Пользователь()
@@ -2096,36 +2105,6 @@
             string sql = "ALTER TABLE `Прайслист` ADD FOREIGN KEY (`КодРаздел`) REFERENCES `Раздел`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Прайслист_Прайслист_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Прайслист-Номенклатура` ADD INDEX (`КодПрайслист`)";
-            return sql;
-        }
-        public string Relation_Прайслист_Прайслист_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Прайслист-Номенклатура` ADD FOREIGN KEY (`КодПрайслист`) REFERENCES `Прайслист`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
-        public string RelationIndex_Номенклатура_Прайслист_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Прайслист-Номенклатура` ADD INDEX (`КодНоменклатура`)";
-            return sql;
-        }
-        public string Relation_Номенклатура_Прайслист_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Прайслист-Номенклатура` ADD FOREIGN KEY (`КодНоменклатура`) REFERENCES `Номенклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
-        public string RelationIndex_Цена_Прайслист_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Прайслист-Номенклатура` ADD INDEX (`КодЦена`)";
-            return sql;
-        }
-        public string Relation_Цена_Прайслист_Номенклатура()
-        {
-            string sql = "ALTER TABLE `Прайслист-Номенклатура` ADD FOREIGN KEY (`КодЦена`) REFERENCES `Цена`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
         public string RelationIndex_Таблицы_Примечания()
         {
             string sql = "ALTER TABLE `Примечания` ADD INDEX (`КодТаблицы`)";
@@ -2134,6 +2113,46 @@
         public string Relation_Таблицы_Примечания()
         {
             string sql = "ALTER TABLE `Примечания` ADD FOREIGN KEY (`КодТаблицы`) REFERENCES `Таблицы`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_ТипПРО_Приходник()
+        {
+            string sql = "ALTER TABLE `Приходник` ADD INDEX (`КодТипПРО`)";
+            return sql;
+        }
+        public string Relation_ТипПРО_Приходник()
+        {
+            string sql = "ALTER TABLE `Приходник` ADD FOREIGN KEY (`КодТипПРО`) REFERENCES `Тип ПРО`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Клиент_Приходник()
+        {
+            string sql = "ALTER TABLE `Приходник` ADD INDEX (`КодКлиент`)";
+            return sql;
+        }
+        public string Relation_Клиент_Приходник()
+        {
+            string sql = "ALTER TABLE `Приходник` ADD FOREIGN KEY (`КодКлиент`) REFERENCES `Клиент`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Приходник_ПриходникДоговор()
+        {
+            string sql = "ALTER TABLE `ПриходникДоговор` ADD INDEX (`КодПриходник`)";
+            return sql;
+        }
+        public string Relation_Приходник_ПриходникДоговор()
+        {
+            string sql = "ALTER TABLE `ПриходникДоговор` ADD FOREIGN KEY (`КодПриходник`) REFERENCES `Приходник`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Договор_ПриходникДоговор()
+        {
+            string sql = "ALTER TABLE `ПриходникДоговор` ADD INDEX (`КодДоговор`)";
+            return sql;
+        }
+        public string Relation_Договор_ПриходникДоговор()
+        {
+            string sql = "ALTER TABLE `ПриходникДоговор` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Клиент_Продажа()
@@ -2156,44 +2175,24 @@
             string sql = "ALTER TABLE `Продажа` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_ТипПРО_РеестрПРО()
+        public string RelationIndex_Прайслист_Продукт()
         {
-            string sql = "ALTER TABLE `Реестр ПРО` ADD INDEX (`КодТипПРО`)";
+            string sql = "ALTER TABLE `Продукт` ADD INDEX (`КодПрайслист`)";
             return sql;
         }
-        public string Relation_ТипПРО_РеестрПРО()
+        public string Relation_Прайслист_Продукт()
         {
-            string sql = "ALTER TABLE `Реестр ПРО` ADD FOREIGN KEY (`КодТипПРО`) REFERENCES `Тип ПРО`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `Продукт` ADD FOREIGN KEY (`КодПрайслист`) REFERENCES `Прайслист`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
-        public string RelationIndex_Клиент_РеестрПРО()
+        public string RelationIndex_Номенклатура_Продукт()
         {
-            string sql = "ALTER TABLE `Реестр ПРО` ADD INDEX (`КодКлиент`)";
+            string sql = "ALTER TABLE `Продукт` ADD INDEX (`КодНоменклатура`)";
             return sql;
         }
-        public string Relation_Клиент_РеестрПРО()
+        public string Relation_Номенклатура_Продукт()
         {
-            string sql = "ALTER TABLE `Реестр ПРО` ADD FOREIGN KEY (`КодКлиент`) REFERENCES `Клиент`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
-        public string RelationIndex_РеестрПРО_РеестрПРОДоговор()
-        {
-            string sql = "ALTER TABLE `РеестрПРОДоговор` ADD INDEX (`КодРеестрПРО`)";
-            return sql;
-        }
-        public string Relation_РеестрПРО_РеестрПРОДоговор()
-        {
-            string sql = "ALTER TABLE `РеестрПРОДоговор` ADD FOREIGN KEY (`КодРеестрПРО`) REFERENCES `Реестр ПРО`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
-            return sql;
-        }
-        public string RelationIndex_Договор_РеестрПРОДоговор()
-        {
-            string sql = "ALTER TABLE `РеестрПРОДоговор` ADD INDEX (`КодДоговор`)";
-            return sql;
-        }
-        public string Relation_Договор_РеестрПРОДоговор()
-        {
-            string sql = "ALTER TABLE `РеестрПРОДоговор` ADD FOREIGN KEY (`КодДоговор`) REFERENCES `Договор`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            string sql = "ALTER TABLE `Продукт` ADD FOREIGN KEY (`КодНоменклатура`) REFERENCES `Номенклатура`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Типреквизита_Реквизит()
@@ -2506,6 +2505,16 @@
             string sql = "ALTER TABLE `Цена` ADD FOREIGN KEY (`КодСкидка`) REFERENCES `Скидка`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
+        public string RelationIndex_Продукт_Цена()
+        {
+            string sql = "ALTER TABLE `Цена` ADD INDEX (`КодПродукт`)";
+            return sql;
+        }
+        public string Relation_Продукт_Цена()
+        {
+            string sql = "ALTER TABLE `Цена` ADD FOREIGN KEY (`КодПродукт`) REFERENCES `Продукт`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
         public string RelationIndex_Клиент_ЭП()
         {
             string sql = "ALTER TABLE `ЭП` ADD INDEX (`КодКлиент`)";
@@ -2549,3 +2558,4 @@
 
     }
 }
+

@@ -4,6 +4,7 @@ using System.Windows;
 using dlgForm = System.Windows.Forms;
 using System.Threading;
 using MigrateBase.Model;
+using System.Configuration;
 
 namespace MigrateBase
 {
@@ -11,54 +12,55 @@ namespace MigrateBase
     public partial class MainWindow : Window
     {
 
-        private readonly OpenDatabases dataBase;
-        private CancellationTokenSource cts = new CancellationTokenSource();
+        private readonly OpenDatabases _dataBase;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
 
         public MainWindow()
         {
             InitializeComponent();
-            dataBase = new OpenDatabases();
+            _dataBase = new OpenDatabases();
 
-            if (dataBase.IsOpenAccess) listTables.ItemsSource =  dataBase.GetAllTablesFromAccess();
-            if (!dataBase.IsOpenMySQL)
+            if (_dataBase.IsOpenAccess) listTables.ItemsSource = _dataBase.GetAllTablesFromAccess();
+            if (!_dataBase.IsOpenMySQL)
             {
-                string message = $"Не удалось открыть БД MySQL {dataBase.DatabaseName()}. Создать БД?";
+                string message = $"Не удалось открыть БД MySQL. Создать БД?";
                 string caption = "Ошибка при открытии БД";
                 dlgForm.MessageBoxButtons buttons = dlgForm.MessageBoxButtons.YesNo;
                 dlgForm.DialogResult result = dlgForm.MessageBox.Show(message, caption, buttons);
                 if (result == dlgForm.DialogResult.Yes)
                 {
-                    dataBase.CreateDatabase();
+                    _dataBase.CreateDatabase();
                 }
             }
 
-            btnCreate.IsEnabled = (dataBase.IsOpenMySQL);
-            btnLoad.IsEnabled = dataBase.IsOpenMySQL && dataBase.IsOpenAccess;
+            btnCreate.IsEnabled = (_dataBase.IsOpenMySQL);
+            btnLoad.IsEnabled = _dataBase.IsOpenMySQL && _dataBase.IsOpenAccess;
             btnLoadAll.IsEnabled = btnLoad.IsEnabled;
-            btnRelation.IsEnabled= (dataBase.IsOpenMySQL);
+            btnRelation.IsEnabled = (_dataBase.IsOpenMySQL);
 
-            if (!String.IsNullOrWhiteSpace(dataBase.Message))
+            if (!String.IsNullOrWhiteSpace(_dataBase.Message))
             {
 
-                listRows.Items.Add(dataBase.Message);
-            
+                listRows.Items.Add(_dataBase.Message);
+
             }
+
         }
 
         private void MainForm_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (dataBase.IsOpenAccess) dataBase.ConnAccess.Close();
-            if (dataBase.IsOpenMySQL) dataBase.ConnMySQL.Close();
+            if (_dataBase.IsOpenAccess) _dataBase.ConnAccess.Close();
+            if (_dataBase.IsOpenMySQL) _dataBase.ConnMySQL.Close();
         }
 
         private void ButExit_Click(object sender, RoutedEventArgs e)
         {
-            Environment.Exit( 0 );
+            Environment.Exit(0);
         }
 
         private void BtnAbort_Click(object sender, RoutedEventArgs e)
         {
-            cts?.Cancel();
+            _cts?.Cancel();
         }
 
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
@@ -90,15 +92,15 @@ namespace MigrateBase
                 lblMessage.Content = (progressindicate?.GetTitle() ?? "") + " " + (progressindicate?.GetName() ?? "") + " " + (progressindicate.GetCurrent() != 0 ? progressindicate.GetCurrent().ToString() : "");
 
                 if (progressindicate.Message != null)
-                {                        
+                {
                     listRows.Items.Add(progressindicate.Message);
                     progressindicate.ClearMessage();
                 }
-                        
+
 
             }
-            else 
-            { 
+            else
+            {
                 progressBar1.Value = 0;
                 lblMessage.Content = "";
             }
@@ -111,16 +113,17 @@ namespace MigrateBase
             btnCreate.IsEnabled = false;
             btnAbort.IsEnabled = true;
 
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+            listRows.Items.Clear();
+            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
 
-            cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
+            var progressindicator = new Progress<ProgressIndicate>(ReportProgress);
+            SQLCreate sqlcreate = new SQLCreate(_dataBase.ConnMySQL);
 
-            var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
-            SQLCreate sqlCreate = new SQLCreate(dataBase.ConnMySQL);
+            await Task.Run(() => sqlcreate.CreateTables(progressindicator, token));
 
-            await Task.Run(() => sqlCreate.CreateTables(progressIndicator, token));
-
-            MessageBox.Show("Создание таблиц завершено");
+            listRows.Items.Add($"Завершение {DateTime.Now.ToString()}");
             ReportProgress();
 
             btnAbort.IsEnabled = false;
@@ -131,31 +134,32 @@ namespace MigrateBase
         private async void InsertDataAsync()
         {
 
-            btnLoad.IsEnabled = false;
+            btnLoadAll.IsEnabled = false;
             btnAbort.IsEnabled = true;
             listRows.Items.Clear();
+            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
 
-            cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
 
-            SQLInsert sqlInsert = new SQLInsert(dataBase.ConnMySQL);
+            SQLInsert sqlinsert = new SQLInsert(_dataBase.ConnMySQL);
 
             foreach (var o in listTables.Items)
             {
-                string nameTable = o.ToString();
-                var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
-                
-                await Task.Run(() => sqlInsert.InsertToMySQL( dataBase.ConnAccess, nameTable, progressIndicator, token));
+                string nametable = o.ToString();
+                var progressindicator = new Progress<ProgressIndicate>(ReportProgress);
+
+                await Task.Run(() => sqlinsert.InsertToMySQL(_dataBase.ConnAccess, nametable, progressindicator, token));
 
                 if (token.IsCancellationRequested) break;
 
             }
 
-            MessageBox.Show($"Загрузка завершена");
+            listRows.Items.Add($"Завершение {DateTime.Now.ToString()}");
             ReportProgress();
 
             btnAbort.IsEnabled = false;
-            btnCreate.IsEnabled = true;
+            btnLoadAll.IsEnabled = true;
 
         }
 
@@ -165,25 +169,30 @@ namespace MigrateBase
             {
                 return;
             }
+            
             btnLoad.IsEnabled = false;
             btnAbort.IsEnabled = true;
             listRows.Items.Clear();
+            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
 
-            cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
 
-            SQLInsert sqlInsert = new SQLInsert(dataBase.ConnMySQL);
+            SQLInsert sqlinsert = new SQLInsert(_dataBase.ConnMySQL);
             foreach (var o in listTables.SelectedItems)
             {
-                string nameTable = o.ToString();
-                var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
+                string nametable = o.ToString();
+                var progressindicator = new Progress<ProgressIndicate>(ReportProgress);
 
-                await Task.Run(() => sqlInsert.InsertToMySQL(dataBase.ConnAccess, nameTable, progressIndicator, token));
+                await Task.Run(() => sqlinsert.InsertToMySQL(_dataBase.ConnAccess, nametable, progressindicator, token));
 
-                if (token.IsCancellationRequested) break;
-
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
             }
-            MessageBox.Show($"Загрузка завершена");
+
+            listRows.Items.Add($"Завершение {DateTime.Now.ToString()}");
             ReportProgress();
 
             btnLoad.IsEnabled = true;
@@ -198,15 +207,16 @@ namespace MigrateBase
             btnRelation.IsEnabled = false;
             btnAbort.IsEnabled = true;
             listRows.Items.Clear();
+            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
 
-            cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
-            var progressIndicator = new Progress<ProgressIndicate>(ReportProgress);
-            SQLCreate dd = new SQLCreate(dataBase.ConnMySQL);
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+            var progressindicator = new Progress<ProgressIndicate>(ReportProgress);
+            SQLCreate dd = new SQLCreate(_dataBase.ConnMySQL);
 
-            await Task.Run(() => dd.RelationTables(progressIndicator, token));
+            await Task.Run(() => dd.RelationTables(progressindicator, token));
 
-            MessageBox.Show("Установка отношений завершена");
+            listRows.Items.Add($"Завершение {DateTime.Now.ToString()}");
             ReportProgress();
 
             btnRelation.IsEnabled = true;
@@ -222,3 +232,4 @@ namespace MigrateBase
 
     }
 }
+

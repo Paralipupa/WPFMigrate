@@ -4,17 +4,14 @@ using System.Linq;
 using System.Data;
 using System.Data.OleDb;
 using MySql.Data.MySqlClient;
+using System.Configuration;
+
 
 namespace MigrateBase.Model
 {
     class OpenDatabases
     {
-        
-
-        private readonly string _host = "192.168.0.61"; // Имя хоста
         private readonly string _database = "clientbase"; // Имя базы данных
-        private readonly string _user = "user"; // Имя пользователя
-        private readonly string _password = "taab501deest"; // Пароль пользователя
         private string _message_error;
         private bool _isopenmysql = false;
         private bool _isopenaccess = false;
@@ -35,46 +32,39 @@ namespace MigrateBase.Model
             OpenMSAccess();
         }
 
-
-        public string DatabaseName()
-        {
-            return (_database);
-        }
-
-
         public bool CreateDatabase()
         {
-            bool _flag = false;
+            bool flag = false;
             try 
             {
                 _command.CommandText = $"CREATE DATABASE `{_database}`"; _command.ExecuteNonQuery();
                 OpenMySQL();
 
-                _flag = true;
+                flag = true;
             }
             catch (Exception ex) 
             {
                 _message_error = $"{ex.Message}, {ex.Source} ";
             }
 
-            return (_flag);
+            return (flag);
         }
 
         public bool DropDatabase()
         {
-            bool _flag = false;
+            bool flag = false;
             try
             {
                 _command.CommandText = $"DROP DATABASE IF EXISTS {_database}"; _command.ExecuteNonQuery();
 
-                _flag = true;
+                flag = true;
             }
             catch (Exception ex)
-            {
+            { 
                 _message_error = $"{ex.Message}, {ex.Source} ";
             }
 
-            return (_flag);            
+            return (flag);            
         }
                 
         public List<string> GetAllTablesFromAccess()
@@ -89,10 +79,10 @@ namespace MigrateBase.Model
 
         private void OpenMySQL()
         {
-            string connStr = "Database=" + _database + ";Datasource=" + _host + ";User=" + _user + ";Password=" + _password;
+            string connstring = ConfigurationManager.AppSettings.Get("MySQLConnStr");
 
             // создаём объект для подключения к БД
-            _connmysql = new MySqlConnection(connStr);
+            _connmysql = new MySqlConnection(connstring);
             // устанавливаем соединение с БД
             try
             {
@@ -108,8 +98,9 @@ namespace MigrateBase.Model
 
         private void OpenMSAccess()
         {
-            string connString = "Provider=Microsoft.ACE.Oledb.12.0;Data Source=D:\\Infoteh\\BASE\\NewBase.mdb;";
-            _connaccess = new OleDbConnection(connString);
+            string connstring = ConfigurationManager.AppSettings.Get("AccessConnStr");
+
+            _connaccess = new OleDbConnection(connstring);
             try
             {
                 _connaccess.Open();
