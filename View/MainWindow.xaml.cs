@@ -34,8 +34,7 @@ namespace MigrateBase
             }
 
             btnCreate.IsEnabled = (_dataBase.IsOpenMySQL);
-            btnLoad.IsEnabled = _dataBase.IsOpenMySQL && _dataBase.IsOpenAccess;
-            btnLoadAll.IsEnabled = btnLoad.IsEnabled;
+            btnLoadAll.IsEnabled = _dataBase.IsOpenMySQL && _dataBase.IsOpenAccess;
             btnRelation.IsEnabled = (_dataBase.IsOpenMySQL);
 
             if (!String.IsNullOrWhiteSpace(_dataBase.Message))
@@ -73,14 +72,16 @@ namespace MigrateBase
             RelationSetAsync();
         }
 
-        private void BtnLoad_Click(object sender, RoutedEventArgs e)
-        {
-            InsertDataCurrentAsync();
-        }
+
 
         private void BtnLoad_Click_All(object sender, RoutedEventArgs e)
         {
             InsertDataAsync();
+        }
+
+        private void btnRunAll_Click(object sender, RoutedEventArgs e)
+        {
+            RunAllAsync();
         }
 
         private void ReportProgress(ProgressIndicate progressindicate = null)
@@ -116,7 +117,7 @@ namespace MigrateBase
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
             listRows.Items.Clear();
-            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
+            listRows.Items.Add($"Начало создания структуры {DateTime.Now.ToString()}");
 
             var progressindicator = new Progress<ProgressIndicate>(ReportProgress);
             SQLCreate sqlcreate = new SQLCreate(_dataBase.ConnMySQL);
@@ -133,11 +134,10 @@ namespace MigrateBase
 
         private async void InsertDataAsync()
         {
-
             btnLoadAll.IsEnabled = false;
             btnAbort.IsEnabled = true;
             listRows.Items.Clear();
-            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
+            listRows.Items.Add($"Начало копирования данных {DateTime.Now.ToString()}");
 
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
@@ -169,11 +169,10 @@ namespace MigrateBase
             {
                 return;
             }
-            
-            btnLoad.IsEnabled = false;
+
             btnAbort.IsEnabled = true;
             listRows.Items.Clear();
-            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
+            listRows.Items.Add($"Начало копирования данных {DateTime.Now.ToString()}");
 
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
@@ -195,11 +194,9 @@ namespace MigrateBase
             listRows.Items.Add($"Завершение {DateTime.Now.ToString()}");
             ReportProgress();
 
-            btnLoad.IsEnabled = true;
             btnAbort.IsEnabled = false;
 
         }
-
 
         private async void RelationSetAsync()
         {
@@ -207,7 +204,7 @@ namespace MigrateBase
             btnRelation.IsEnabled = false;
             btnAbort.IsEnabled = true;
             listRows.Items.Clear();
-            listRows.Items.Add($"Начало {DateTime.Now.ToString()}");
+            listRows.Items.Add($"Начало создания индексов {DateTime.Now.ToString()}");
 
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
@@ -220,6 +217,68 @@ namespace MigrateBase
             ReportProgress();
 
             btnRelation.IsEnabled = true;
+            btnAbort.IsEnabled = false;
+
+        }
+
+        private async void RunAllAsync()
+        {
+
+            btnAbort.IsEnabled = true;
+            btnCreate.IsEnabled = false;
+            btnRelation.IsEnabled = false;
+            btnLoadAll.IsEnabled = false;
+            btnRunAll.IsEnabled = false;
+
+            listRows.Items.Clear();
+
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+            SQLCreate dd = new SQLCreate(_dataBase.ConnMySQL);
+
+            listRows.Items.Add($"Создание таблиц  {DateTime.Now.ToString()}");
+            var progressindicator = new Progress<ProgressIndicate>(ReportProgress);
+            await Task.Run(() => dd.CreateTables(progressindicator, token));
+
+            if (listRows.Items.Count ==1)
+            {
+                listRows.Items.Add($"Создание индексов {DateTime.Now.ToString()}");
+                progressindicator = new Progress<ProgressIndicate>(ReportProgress);
+                await Task.Run(() => dd.RelationTables(progressindicator, token));
+
+                if (listRows.Items.Count == 2)
+                {
+                    SQLInsert sqlinsert = new SQLInsert(_dataBase.ConnMySQL);
+                    listRows.Items.Add($"Копирование данных {DateTime.Now.ToString()}");
+                    foreach (var o in listTables.Items)
+                    {
+                        string nametable = o.ToString();
+                        progressindicator = new Progress<ProgressIndicate>(ReportProgress);
+
+                        await Task.Run(() => sqlinsert.InsertToMySQL(_dataBase.ConnAccess, nametable, progressindicator, token));
+
+                        if (token.IsCancellationRequested) break;
+
+                    }
+                    listRows.Items.Add($"Завершение {DateTime.Now.ToString()}");
+                }
+                else
+                {
+                    listRows.Items.Add($"Аварийное завершение создания индексов {DateTime.Now.ToString()}");
+                }
+
+            }
+            else
+            {
+                listRows.Items.Add($"Аварийное завершение создания таблиц {DateTime.Now.ToString()}");
+            }
+
+            ReportProgress();
+
+            btnCreate.IsEnabled = true;
+            btnRelation.IsEnabled = true;
+            btnLoadAll.IsEnabled = true;
+            btnRunAll.IsEnabled = true;
             btnAbort.IsEnabled = false;
 
         }

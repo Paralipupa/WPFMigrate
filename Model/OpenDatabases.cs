@@ -11,7 +11,7 @@ namespace MigrateBase.Model
 {
     class OpenDatabases
     {
-        private readonly string _database = "clientbase"; // Имя базы данных
+        private readonly string _database = "clientbase2"; // Имя базы данных
         private string _message_error;
         private bool _isopenmysql = false;
         private bool _isopenaccess = false;

@@ -3,14 +3,15 @@ using System.Threading;
 using System.Data.OleDb;
 using System.Data;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 
 namespace MigrateBase.Model
 {
     class SQLInsert
     {
 
-        private readonly MySqlCommand _command;
-        
+        public  readonly MySqlCommand _command;
+
         public SQLInsert(MySqlConnection connect)
         {
             _command = new MySqlCommand
@@ -32,6 +33,7 @@ namespace MigrateBase.Model
 
             foreach (DataTable _dt in _ds.Tables)
             {
+                Dictionary<string, string> DictFields = new Dictionary<string, string>();
 
                 progressindicate = new ProgressIndicate(_dt.Rows.Count);
                 progressindicate.SetTitle($"Запись в {nameTable}");
@@ -40,7 +42,13 @@ namespace MigrateBase.Model
 
                 string _str = "";
                 foreach (DataColumn column in _dt.Columns)
-                    _str += $"`{column.ColumnName.Trim()}`,";
+                {
+                    if (column.ColumnName.Substring(0, 1) != "_")
+                    {
+                        DictFields.Add(column.ColumnName.Trim(), column.ColumnName.Trim());
+                        _str += $"`{column.ColumnName.Trim()}`,";
+                    }
+                }
 
                 _mSQLHead += $"({_str.Trim().TrimEnd(',')})";
                 _mSQLHead += " VALUES ";
@@ -50,7 +58,6 @@ namespace MigrateBase.Model
                 // перебор всех строк таблицы                
                 foreach (DataRow _row in _dt.Rows)
                 {
-                    // получаем все ячейки строки
                     if (token.IsCancellationRequested)
                     {
                         return;
@@ -58,66 +65,71 @@ namespace MigrateBase.Model
 
                     progressindicate.MoveNextCurrent();
 
+                    // получаем все ячейки строки
                     var _cells = _row.ItemArray;
                     _str = "";
+                    int index = 0;
                     foreach (object _cell in _cells)
                     {
-                        switch (_cell.GetType().ToString())
-                        {
-                            case "System.String":
-                                _str += "'" + _cell.ToString().Trim().Replace("'","`") + "', ";
-                                break;
-                            case "System.DBNull":
-                                _str += "Null, ";
-                                break;
-                            case "System.DateTime":
-                                DateTime _d;
-                                if (DateTime.TryParse(_cell.ToString(), out _d))
-                                {
-                                    _str += "'" + _d.ToString("o") + "', ";
-                                }
-                                else _str += "Null, ";
-                                break;
-                            default:
-                                _str += _cell.ToString().Trim() + ", ";
-                                break;
-                        }
+                        if (DictFields.ContainsKey(_dt.Columns[index].ColumnName))
+                            switch (_cell.GetType().ToString())
+                            {
+                                case "System.String":
+                                    _str += "'" + _cell.ToString().Trim().Replace("'", "`") + "', ";
+                                    break;
+                                case "System.DBNull":
+                                    _str += "Null, ";
+                                    break;
+                                case "System.DateTime":
+                                    DateTime _d;
+                                    if (DateTime.TryParse(_cell.ToString(), out _d))
+                                    {
+                                        _str += "'" + _d.ToString("o") + "', ";
+                                    }
+                                    else _str += "Null, ";
+                                    break;
+                                default:
+                                    _str += _cell.ToString().Trim() + ", ";
+                                    break;
+                            }
+                        index++;
+
                     }
 
                     _mSQLValue += $"({ _str.Trim().TrimEnd(',') }), ";
                     _str = "";
-                    
+
                     if (progressindicate.GetInterval() > 4000)
                     {
-                        ExecuteQuery( _mSQLHead + _mSQLValue.Trim().TrimEnd(','), progress, progressindicate);
+                        ExecuteQuery(_mSQLHead + _mSQLValue.Trim().TrimEnd(','), progress, progressindicate);
 
                         progressindicate.ClearInterval();
                         _mSQLValue = "";
                     }
 
                 }
-                                
+
 
                 if (_mSQLValue.Length != 0) ExecuteQuery(_mSQLHead + _mSQLValue.Trim().TrimEnd(','), progress, progressindicate);
-                
+
 
             }
-            
+
         }
 
-        public void ExecuteQuery(string query, IProgress<ProgressIndicate> progress, ProgressIndicate progressindicate )
+        public void ExecuteQuery(string query, IProgress<ProgressIndicate> progress, ProgressIndicate progressindicate)
         {
             try
             {
                 _command.CommandText = query; int _n = _command.ExecuteNonQuery();
-                if (_n != progressindicate.GetInterval()) 
+                if (_n != progressindicate.GetInterval())
                     progressindicate.AddMessage($" Предупреждение: '{query.Substring(11, 20)}' запрошено {progressindicate.GetInterval()},  записано {_n} ");
             }
             catch (Exception ex)
             {
-                 progressindicate.AddMessage($" Ошибка {progressindicate.GetInterval()}зап.: {ex.Message}. '{query.Substring(11, 20)}'");
+                progressindicate.AddMessage($" Ошибка {progressindicate.GetInterval()}зап.: {ex.Message}. '{query.Substring(11, 20)}'");
             }
-            finally 
+            finally
             {
                 if (progress != null) progress.Report(progressindicate);
 
