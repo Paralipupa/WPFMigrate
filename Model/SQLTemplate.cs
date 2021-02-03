@@ -200,6 +200,7 @@ namespace MigrateBase.Model
             sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
             sql += ",`КодКлиент` INT NULL DEFAULT NULL";
             sql += ",`КодПримечания` INT NULL DEFAULT NULL";
+            sql += ",`Активный` BIT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -219,6 +220,8 @@ namespace MigrateBase.Model
             sql += ",`КодПримечания` INT NULL DEFAULT NULL";
             sql += ",`Активный` BIT NULL DEFAULT NULL";
             sql += ",`Дата занесения` DATETIME NULL DEFAULT NULL";
+            sql += ",`В наличии` BIT NULL DEFAULT NULL";
+            sql += ",`Услуги` BIT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -669,6 +672,7 @@ namespace MigrateBase.Model
             sql += ",`Оплачено` BIT NULL DEFAULT NULL";
             sql += ",`Дата создания` DATETIME NULL DEFAULT NULL";
             sql += ",`КодПозиция` INT NULL DEFAULT NULL";
+            sql += ",`Учтена` BIT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -968,10 +972,11 @@ namespace MigrateBase.Model
             sql += ",`НаименованиеРодительское` VARCHAR(50) NULL DEFAULT NULL";
             sql += ",`Описание` VARCHAR(100) NULL DEFAULT NULL";
             sql += ",`ФайлШаблона` VARCHAR(100) NULL DEFAULT NULL";
-            sql += ",`Префикс` VARCHAR(20) NULL DEFAULT NULL";
+            sql += ",`Префикс` VARCHAR(120) NULL DEFAULT NULL";
             sql += ",`КодРаздел` INT NULL DEFAULT NULL";
             sql += ",`КодПоставщик` INT NULL DEFAULT NULL";
             sql += ",`КодДилер` INT NULL DEFAULT NULL";
+            sql += ",`Активный` BIT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -1144,6 +1149,11 @@ namespace MigrateBase.Model
             sql += ",`Дата` DATETIME NULL DEFAULT NULL";
             sql += ",`Активный` BIT NULL DEFAULT NULL";
             sql += ",`Дата занесения` DATETIME NULL DEFAULT NULL";
+            sql += ",`Условный номер` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Регистрация` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Место` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Дата начала` DATETIME NULL DEFAULT NULL";
+            sql += ",`Дата окончания` DATETIME NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -1240,15 +1250,66 @@ namespace MigrateBase.Model
             return sql;
         }
 
+        public string Create_ED2Watcher()
+        {
+            string nameTable = "ED2Watcher";
+            string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
+            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`КодКлиент` INT NULL DEFAULT NULL";
+            sql += ",`Идентификатор` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Логин` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Сервер` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`ИНН` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Дата создания` DATETIME NULL DEFAULT NULL";
+            sql += ",`Дата проверсии` DATETIME NULL DEFAULT NULL";
+            sql += ",`Количество` INT NULL DEFAULT NULL";
+            sql += ",`Активный` BIT NULL DEFAULT NULL";
+            sql += ",`Учтена` BIT NULL DEFAULT NULL";
+            sql += ")";
+            return sql;
+        }
+
         public string Create_Выборка()
         {
             string nameTable = "Выборка";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
-            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Наименование` VARCHAR(250) NULL DEFAULT NULL";
             sql += ",`КодПользователь` INT NULL DEFAULT NULL";
             sql += ",`Дата` DATETIME NULL DEFAULT NULL";
             sql += ",`КодПримечания` INT NULL DEFAULT NULL";
             sql += ")";
+            return sql;
+        }
+
+        public string Create_Команда()
+        {
+            string nameTable = "Команда";
+            string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
+            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ")";
+            return sql;
+        }
+
+        public string Create_Доступ()
+        {
+            string nameTable = "Доступ";
+            string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
+            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`КодТипрегистрации` INT NULL DEFAULT NULL";
+            sql += ",`КодКоманда` INT NULL DEFAULT NULL";
+            sql += ",`КодРоль` INT NULL DEFAULT NULL";
+            sql += ",`Активный` BIT NULL DEFAULT NULL";
+            sql += ")";
+            return sql;
+        }
+        public string RelationIndex_Клиент_ED2Watcher()
+        {
+            string sql = "ALTER TABLE `ED2Watcher` ADD INDEX (`КодКлиент`)";
+            return sql;
+        }
+        public string Relation_Клиент_ED2Watcher()
+        {
+            string sql = "ALTER TABLE `ED2Watcher` ADD FOREIGN KEY (`КодКлиент`) REFERENCES `Клиент`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Email_EmailРассылка()
@@ -1609,6 +1670,36 @@ namespace MigrateBase.Model
         public string Relation_Примечания_Должность()
         {
             string sql = "ALTER TABLE `Должность` ADD FOREIGN KEY (`КодПримечания`) REFERENCES `Примечания`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Типрегистрации_Доступ()
+        {
+            string sql = "ALTER TABLE `Доступ` ADD INDEX (`КодТипрегистрации`)";
+            return sql;
+        }
+        public string Relation_Типрегистрации_Доступ()
+        {
+            string sql = "ALTER TABLE `Доступ` ADD FOREIGN KEY (`КодТипрегистрации`) REFERENCES `Тип регистрации`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Команда_Доступ()
+        {
+            string sql = "ALTER TABLE `Доступ` ADD INDEX (`КодКоманда`)";
+            return sql;
+        }
+        public string Relation_Команда_Доступ()
+        {
+            string sql = "ALTER TABLE `Доступ` ADD FOREIGN KEY (`КодКоманда`) REFERENCES `Команда`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Роль_Доступ()
+        {
+            string sql = "ALTER TABLE `Доступ` ADD INDEX (`КодРоль`)";
+            return sql;
+        }
+        public string Relation_Роль_Доступ()
+        {
+            string sql = "ALTER TABLE `Доступ` ADD FOREIGN KEY (`КодРоль`) REFERENCES `Роль`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Документ_Журналдокумента()
