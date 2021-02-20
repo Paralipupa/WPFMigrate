@@ -179,6 +179,7 @@ namespace MigrateBase.Model
          _sql.RelationIndex_Документ_ДокументПозиция(),
          _sql.RelationIndex_Документ_ДокументСтрока(),
          _sql.RelationIndex_Документ_Журналдокумента(),
+         _sql.RelationIndex_Документ_ПакетЖурнал(),
          _sql.RelationIndex_Должность_Персонал(),
          _sql.RelationIndex_Заявка_ЗаявкаЭП(),
          _sql.RelationIndex_Категория_Номенклатура(),

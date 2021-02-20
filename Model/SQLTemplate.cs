@@ -597,6 +597,7 @@ namespace MigrateBase.Model
             sql += ",`Количество` INT NULL DEFAULT NULL";
             sql += ",`Дата` DATETIME NULL DEFAULT NULL";
             sql += ",`КодТипСобытияПакета` INT NULL DEFAULT NULL";
+            sql += ",`КодДокумент` INT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -1143,7 +1144,7 @@ namespace MigrateBase.Model
         {
             string nameTable = "ТоварСтатус";
             string sql = "CREATE TABLE `" + nameTable + "` (`Код` INT AUTO_INCREMENT PRIMARY KEY";
-            sql += ",`Наименование` VARCHAR(150) NULL DEFAULT NULL";
+            sql += ",`Наименование` VARCHAR(255) NULL DEFAULT NULL";
             sql += ",`КодТовар` INT NULL DEFAULT NULL";
             sql += ",`КодТипСтатусаТовара` INT NULL DEFAULT NULL";
             sql += ",`Дата` DATETIME NULL DEFAULT NULL";
@@ -1264,7 +1265,7 @@ namespace MigrateBase.Model
             sql += ",`Дата проверсии` DATETIME NULL DEFAULT NULL";
             sql += ",`Количество` INT NULL DEFAULT NULL";
             sql += ",`Активный` BIT NULL DEFAULT NULL";
-            sql += ",`Учтена` BIT NULL DEFAULT NULL";
+            sql += ",`ПРО` BIT NULL DEFAULT NULL";
             sql += ")";
             return sql;
         }
@@ -2190,6 +2191,16 @@ namespace MigrateBase.Model
         public string Relation_Типсобытияпакета_ПакетЖурнал()
         {
             string sql = "ALTER TABLE `ПакетЖурнал` ADD FOREIGN KEY (`КодТипсобытияпакета`) REFERENCES `Тип события пакета`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
+            return sql;
+        }
+        public string RelationIndex_Документ_ПакетЖурнал()
+        {
+            string sql = "ALTER TABLE `ПакетЖурнал` ADD INDEX (`КодДокумент`)";
+            return sql;
+        }
+        public string Relation_Документ_ПакетЖурнал()
+        {
+            string sql = "ALTER TABLE `ПакетЖурнал` ADD FOREIGN KEY (`КодДокумент`) REFERENCES `Документ`(`Код`) ON DELETE RESTRICT ON UPDATE RESTRICT";
             return sql;
         }
         public string RelationIndex_Пакет_ПакетНоменклатура()
